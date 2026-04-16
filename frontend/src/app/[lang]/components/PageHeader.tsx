@@ -1,17 +1,21 @@
-// ./frontend/src/app/[lang]/components/PageHeader.tsx
-
 import React from "react";
 
 interface PageHeaderProps {
-  heading: string,
-  text?: string,
+  heading: string;
+  text?: string;
 }
 
-export default function PageHeader({ heading, text } : PageHeaderProps) {
+export default function PageHeader({ heading, text }: PageHeaderProps) {
   return (
-    <div className="my-16 w-full text-center">
-    { text && <span className="text-violet-400 font-bold">{text}</span> }
-    <h2 className="text-4xl my-4 lg:text-5xl font-bold font-heading">{heading}</h2>
-  </div>
+    <header className="py-12 sm:py-16 lg:py-20 w-full text-center">
+      {text && (
+        <span className="inline-block px-4 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-full mb-4">
+          {text}
+        </span>
+      )}
+      <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white tracking-tight">
+        {heading}
+      </h1>
+    </header>
   );
 }

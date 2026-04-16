@@ -1,7 +1,7 @@
 // ./frontend/src/app/[lang]/utils/api-helpers.ts
 
 export function getStrapiURL(path = '') {
-    return `${process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337'}${path}`;
+    return `${process.env.NEXT_PUBLIC_STRAPI_PUBLIC_API_URL || 'http://localhost:1337'}${path}`;
 }
 
 export function getStrapiMedia(url: string | null) {

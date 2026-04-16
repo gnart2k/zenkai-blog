@@ -1,6 +1,18 @@
 // ./frontend/stc/app/[lang]/utils/fetch-api.tsx
 import qs from "qs";
-import { getStrapiURL } from "./api-helpers";
+
+const getAPIUrl = () => {
+  if (typeof window === 'undefined') {
+    return process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+  }
+  return process.env.NEXT_PUBLIC_STRAPI_PUBLIC_API_URL || 'http://localhost:1337';
+};
+
+const getProxyUrl = (path: string, urlParamsObject: any) => {
+  const queryString = qs.stringify(urlParamsObject);
+  const proxyPath = path.replace(/^\/api/, '');
+  return `/api/strapi${proxyPath}${queryString ? `?${queryString}` : ""}`;
+};
 
 export async function fetchAPI(
   path: string,
@@ -8,23 +20,30 @@ export async function fetchAPI(
   options = {}
 ) {
   try {
-    // Merge default and user options
-    const mergedOptions = {
-      next: { revalidate: 60 },
-      headers: {
-        "Content-Type": "application/json",
-      },
-      ...options,
-    };
+    const isClient = typeof window !== 'undefined';
+    
+    let requestUrl: string;
+    let fetchOptions: RequestInit;
 
-    // Build request URL
-    const queryString = qs.stringify(urlParamsObject);
-    const requestUrl = `${getStrapiURL(
-      `/api${path}${queryString ? `?${queryString}` : ""}`
-    )}`;
+    if (isClient) {
+      requestUrl = getProxyUrl(path, urlParamsObject);
+      fetchOptions = {
+        ...options,
+      };
+    } else {
+      const baseUrl = getAPIUrl();
+      const queryString = qs.stringify(urlParamsObject);
+      requestUrl = `${baseUrl}/api${path}${queryString ? `?${queryString}` : ""}`;
+      fetchOptions = {
+        next: { revalidate: 60 },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        ...options,
+      };
+    }
 
-    // Trigger API call
-    const response = await fetch(requestUrl, mergedOptions);
+    const response = await fetch(requestUrl, fetchOptions);
     const data = await response.json();
     return data;
     

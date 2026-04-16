@@ -13,36 +13,29 @@ async function fetchPostsByCategory(filter: string) {
                     slug: filter,
                 },
             },
-            populate: {
-                cover: { fields: ['url'] },
-                category: {
-                    populate: '*',
-                },
-                authorsBio: {
-                    populate: '*',
-                },
-            },
+            populate: ['cover', 'category', 'authorsBio.avatar'],
         };
         const options = { headers: { Authorization: `Bearer ${token}` } };
         const responseData = await fetchAPI(path, urlParamsObject, options);
         return responseData;
     } catch (error) {
         console.error(error);
+        return { data: [] };
     }
 }
 
 export default async function CategoryRoute({ params }: { params: { category: string } }) {
     const filter = params.category;
-    const { data } = await fetchPostsByCategory(filter);
+    const result = await fetchPostsByCategory(filter);
+    const data = result.data || [];
 
-    //TODO: CREATE A COMPONENT FOR THIS
-    if (data.length === 0) return <div>Not Posts In this category</div>;
+    if (data.length === 0) return <div>No posts in this category</div>;
 
-    const { name, description } = data[0]?.attributes.category.data.attributes;
+    const { name, description } = data[0]?.category || {};
 
     return (
         <div>
-            <PageHeader heading={name} text={description} />
+            <PageHeader heading={name || filter} text={description || ''} />
             <PostList data={data} />
         </div>
     );

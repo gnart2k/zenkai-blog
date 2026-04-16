@@ -1,5 +1,4 @@
 "use client";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Logo from "./Logo";
 import { CgWebsite } from "react-icons/cg";
@@ -15,52 +14,23 @@ interface FooterLink {
 }
 
 interface CategoryLink {
-  id: string;
-  attributes: {
-    name: string;
-    slug: string;
-  };
+  id: string | number;
+  name: string;
+  slug: string;
 }
 
-function FooterLink({ url, text }: FooterLink) {
-  const path = usePathname();
-  return (
-    <li className="flex">
-      <Link
-        href={url}
-        className={`hover:dark:text-violet-400 ${
-          path === url && "dark:text-violet-400 dark:border-violet-400"
-        }}`}
-      >
-        {text}
-      </Link>
-    </li>
-  );
-}
-
-function CategoryLink({ attributes }: CategoryLink) {
-  return (
-    <li className="flex">
-      <Link
-        href={`/${attributes.slug}`}
-        className="hover:dark:text-violet-400"
-      >
-        {attributes.name}
-      </Link>
-    </li>
-  );
-}
-
-function RenderSocialIcon({ social }: { social: string | undefined }) {
+function SocialIcon({ social }: { social: string | undefined }) {
+  const iconClass = "w-5 h-5";
+  
   switch (social) {
     case "WEBSITE":
-      return <CgWebsite />;
+      return <CgWebsite className={iconClass} aria-hidden="true" />;
     case "TWITTER":
-      return <AiFillTwitterCircle />;
+      return <AiFillTwitterCircle className={iconClass} aria-hidden="true" />;
     case "YOUTUBE":
-      return <AiFillYoutube />;
+      return <AiFillYoutube className={iconClass} aria-hidden="true" />;
     case "DISCORD":
-      return <FaDiscord />;
+      return <FaDiscord className={iconClass} aria-hidden="true" />;
     default:
       return null;
   }
@@ -76,72 +46,110 @@ export default function Footer({
 }: {
   logoUrl: string | null;
   logoText: string | null;
-  menuLinks: Array<FooterLink>;
+  menuLinks: Array<{ id: string | number; url: string; text: string }>;
   categoryLinks: Array<CategoryLink>;
-  legalLinks: Array<FooterLink>;
-  socialLinks: Array<FooterLink>;
+  legalLinks: Array<{ id: string | number; url: string; text: string }>;
+  socialLinks: Array<{ id: string | number; url: string; text: string; social?: string; newTab?: boolean }>;
 }) {
+  const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="py-6 dark:bg-black dark:text-gray-50">
-      <div className="container px-6 mx-auto space-y-6 divide-y divide-gray-400 md:space-y-12 divide-opacity-50">
-        <div className="grid grid-cols-12">
-          <div className="pb-6 col-span-full md:pb-0 md:col-span-6">
-            <Logo src={logoUrl}>
-              {logoText && <h2 className="text-2xl font-bold">{logoText}</h2>}
-            </Logo>
+    <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+          <div className="lg:col-span-1">
+            <Link
+              href="/"
+              className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-lg"
+              aria-label="Go to homepage"
+            >
+              <Logo src={logoUrl}>
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {logoText}
+                </span>
+              </Logo>
+            </Link>
+            <p className="mt-4 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              Exploring ideas, sharing knowledge, and building the future one post at a time.
+            </p>
           </div>
 
-          <div className="col-span-6 text-center md:text-left md:col-span-3">
-            <p className="pb-1 text-lg font-medium">Categories</p>
-            <ul>
+          <nav aria-label="Categories">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+              Categories
+            </h3>
+            <ul className="space-y-3" role="list">
               {categoryLinks.map((link: CategoryLink) => (
-                <CategoryLink key={link.id} {...link} />
+                <li key={link.id}>
+                  <Link
+                    href={`/${link.slug}`}
+                    className="text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-sm"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div className="col-span-6 text-center md:text-left md:col-span-3">
-            <p className="pb-1 text-lg font-medium">Menu</p>
-            <ul>
-              {menuLinks.map((link: FooterLink) => (
-                <FooterLink key={link.id} {...link} />
+          <nav aria-label="Quick links">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-3" role="list">
+              {menuLinks.map((link) => (
+                <li key={link.id}>
+                  <Link
+                    href={link.url}
+                    className="text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-sm"
+                  >
+                    {link.text}
+                  </Link>
+                </li>
               ))}
             </ul>
-          </div>
-        </div>
-        <div className="grid justify-center pt-6 lg:justify-between">
-          <div className="flex">
-            <span className="mr-2">
-              ©{new Date().getFullYear()} All rights reserved
-            </span>
-            <ul className="flex">
-              {legalLinks.map((link: FooterLink) => (
-                <Link
-                  href={link.url}
-                  className="text-gray-400 hover:text-gray-300 mr-2"
-                  key={link.id}
-                >
-                  {link.text}
-                </Link>
-              ))}
-            </ul>
-          </div>
-          <div className="flex justify-center pt-4 space-x-4 lg:pt-0 lg:col-end-13">
-            {socialLinks.map((link: FooterLink) => {
-              return (
+          </nav>
+
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+              Follow Us
+            </h3>
+            <div className="flex items-center gap-3">
+              {socialLinks.map((link) => (
                 <a
                   key={link.id}
-                  rel="noopener noreferrer"
                   href={link.url}
-                  title={link.text}
                   target={link.newTab ? "_blank" : "_self"}
-                  className="flex items-center justify-center w-10 h-10 rounded-full dark:bg-violet-400 dark:text-gray-900"
+                  rel={link.newTab ? "noopener noreferrer" : undefined}
+                  className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-600 dark:hover:text-primary-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  aria-label={`Visit our ${link.text}`}
                 >
-                  <RenderSocialIcon social={link.social} />
+                  <SocialIcon social={link.social} />
                 </a>
-              );
-            })}
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <p className="text-slate-600 dark:text-slate-400 text-sm">
+              ©{currentYear} {logoText}. All rights reserved.
+            </p>
+            <nav aria-label="Legal">
+              <ul className="flex items-center gap-6" role="list">
+                {legalLinks.map((link) => (
+                  <li key={link.id}>
+                    <Link
+                      href={link.url}
+                      className="text-slate-500 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors text-sm"
+                    >
+                      {link.text}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
       </div>

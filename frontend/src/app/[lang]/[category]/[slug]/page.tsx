@@ -7,12 +7,7 @@ async function getPostBySlug(slug: string) {
     const path = `/articles`;
     const urlParamsObject = {
         filters: { slug },
-        populate: {
-            cover: { fields: ['url'] },
-            authorsBio: { populate: '*' },
-            category: { fields: ['name'] },
-            blocks: { populate: '*' },
-        },
+        populate: ['cover', 'authorsBio.avatar', 'category', 'blocks'],
     };
     const options = { headers: { Authorization: `Bearer ${token}` } };
     const response = await fetchAPI(path, urlParamsObject, options);
@@ -24,7 +19,7 @@ async function getMetaData(slug: string) {
     const path = `/articles`;
     const urlParamsObject = {
         filters: { slug },
-        populate: { seo: { populate: '*' } },
+        populate: ['seo'],
     };
     const options = { headers: { Authorization: `Bearer ${token}` } };
     const response = await fetchAPI(path, urlParamsObject, options);
@@ -33,18 +28,20 @@ async function getMetaData(slug: string) {
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const meta = await getMetaData(params.slug);
-    const metadata = meta[0].attributes.seo;
+    if (!meta || meta.length === 0) return { title: 'Post not found' };
+    const article = meta[0];
+    const metadata = article.seo;
 
     return {
-        title: metadata.metaTitle,
-        description: metadata.metaDescription,
+        title: metadata?.metaTitle || article.title,
+        description: metadata?.metaDescription || article.description,
     };
 }
 
 export default async function PostRoute({ params }: { params: { slug: string } }) {
     const { slug } = params;
     const data = await getPostBySlug(slug);
-    if (data.data.length === 0) return <h2>no post found</h2>;
+    if (!data.data || data.data.length === 0) return <h2>no post found</h2>;
     return <Post data={data.data[0]} />;
 }
 
@@ -60,14 +57,12 @@ export async function generateStaticParams() {
         options
     );
 
-    return articleResponse.data.map(
+    return (articleResponse.data || []).map(
         (article: {
-            attributes: {
+            slug: string;
+            category?: {
                 slug: string;
-                category: {
-                    slug: string;
-                };
             };
-        }) => ({ slug: article.attributes.slug, category: article.attributes.slug })
+        }) => ({ slug: article.slug, category: article.category?.slug || '' })
     );
 }

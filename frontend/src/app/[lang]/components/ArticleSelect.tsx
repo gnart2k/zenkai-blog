@@ -3,27 +3,21 @@ import Link from "next/link";
 
 interface Category {
   id: number;
-  attributes: {
-    name: string;
-    slug: string;
-    articles: {
-      data: Array<{}>;
-    };
-  };
+  name: string;
+  slug: string;
+  articles?: Array<{}>;
 }
 
 interface Article {
   id: number;
-  attributes: {
-    title: string;
-    slug: string;
-  };
+  title: string;
+  slug: string;
 }
 
 function selectedFilter(current: string, selected: string) {
   return current === selected
-    ? "px-3 py-1 rounded-lg hover:underline dark:bg-violet-700 dark:text-gray-100"
-    : "px-3 py-1 rounded-lg hover:underline dark:bg-violet-400 dark:text-gray-900";
+    ? "px-3 py-1.5 rounded-full text-sm font-medium bg-primary-600 text-white"
+    : "px-3 py-1.5 rounded-full text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700";
 }
 
 export default function ArticleSelect({
@@ -38,47 +32,57 @@ export default function ArticleSelect({
     category: string;
   };
 }) {
+  const filteredCategories = categories.filter(
+    (category) => category.articles && category.articles.length > 0
+  );
 
   return (
-    <div className="p-4 rounded-lg dark:bg-gray-900 min-h-[365px] relative">
-      <h4 className="text-xl font-semibold">Browse By Category</h4>
-
+    <aside 
+      className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 h-fit sticky top-24"
+      aria-label="Article navigation"
+    >
       <div>
-        <div className="flex flex-wrap py-6 space-x-2 dark:border-gray-400">
-          {categories.map((category: Category) => {
-            if (category.attributes.articles.data.length === 0) return null;
-            return (
-              <Link
-                href={`/${category.attributes.slug}`}
-                className={selectedFilter(
-                  category.attributes.slug,
-                  params.category
-                )}
-              >
-                #{category.attributes.name}
-              </Link>
-            );
-          })}
-          <Link href={"/"} className={selectedFilter("", "filter")}>
-            #all
+        <h3 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+          Browse By Category
+        </h3>
+        <div className="flex flex-wrap gap-2 pb-6 border-b border-slate-200 dark:border-slate-700">
+          {filteredCategories.map((category: Category) => (
+            <Link
+              key={category.id}
+              href={`/${category.slug}`}
+              className={selectedFilter(category.slug, params.category)}
+              aria-current={category.slug === params.category ? "true" : undefined}
+            >
+              {category.name}
+            </Link>
+          ))}
+          <Link 
+            href="/" 
+            className={selectedFilter("", params.category)}
+          >
+            All
           </Link>
         </div>
 
-        <div className="space-y-2">
-          <h4 className="text-lg font-semibold">Other Posts You May Like</h4>
-          <ul className="ml-4 space-y-1 list-disc">
-            {articles.map((article: Article) => {
+        <div className="mt-6">
+          <h4 className="text-sm font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-4">
+            Related Articles
+          </h4>
+          <ul className="space-y-3" role="list">
+            {articles.slice(0, 5).map((article: Article) => {
+              const isCurrentArticle = params.slug === article.slug;
               return (
-                <li>
+                <li key={article.id}>
                   <Link
-                    rel="noopener noreferrer"
-                    href={`/${params.category}/${article.attributes.slug}`}
-                    className={`${
-                      params.slug === article.attributes.slug &&
-                      "text-violet-400"
-                    }  hover:underline hover:text-violet-400 transition-colors duration-200`}
+                    href={`/${params.category}/${article.slug}`}
+                    className={`block text-sm transition-colors ${
+                      isCurrentArticle
+                        ? "text-primary-600 dark:text-primary-400 font-medium"
+                        : "text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400"
+                    }`}
+                    aria-current={isCurrentArticle ? "page" : undefined}
                   >
-                    {article.attributes.title}
+                    <span className="line-clamp-2">{article.title}</span>
                   </Link>
                 </li>
               );
@@ -86,6 +90,6 @@ export default function ArticleSelect({
           </ul>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

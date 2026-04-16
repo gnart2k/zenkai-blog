@@ -45,33 +45,21 @@ Create your first admin user.
 
 ## Seeding the Data
 
-At the root of our project, we have our `seed-schema.tar` file. We will use it to update the schema for our Strapi app.
+The old Strapi 4 seed format (`.tar.gz`) is not compatible with Strapi 5. This project includes an automatic seed script that runs on first startup.
 
-1. Go back to your terminal and stop your Strapi backend server by pressing `CTRL` plus `C` on your keyboard.
-   
-2. Run the following command in the root of your project folder `blog-strapi` to update the schema:
+### Automatic Seeding
+The seed script in `backend/src/index.js` automatically populates sample data (categories, authors, and articles) when you first start Strapi.
 
-```bash
-tar xvf seed-schema.tar -C backend
-```
-3. Import data into your backend's database:
+If you want to re-seed:
+1. Delete all existing entries from your Strapi admin panel
+2. Restart the server: `yarn develop`
 
-```bash
-cd backend
-yarn strapi import -f ../seed-data.tar.gz
-```
-
-Answer `y` to `The import will delete all assets and data in your database. Are you sure you want to proceed? (y/N)`
-
-4. After a successful import, rerun your Strapi backend server. 
-
-```bash
-yarn develop
-```
-
-In your browser, log in to your admin panel. You should see the newly imported `content` and `collection types`.
-
-![after-import](https://user-images.githubusercontent.com/6153188/231865491-05cb5818-a0d0-49ce-807e-a879f7e3070c.gif)
+### Manual Data Entry
+If you prefer to add data manually:
+1. Log in to your Strapi Admin panel at `http://127.0.0.1:1337/admin`
+2. Create your first **Category** (e.g., "Technology")
+3. Create an **Author** (e.g., "John Doe")
+4. Create **Articles** and link them to categories and authors
 
 ## Frontend Setup
 
