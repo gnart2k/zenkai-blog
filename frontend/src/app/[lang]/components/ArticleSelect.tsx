@@ -12,6 +12,13 @@ interface Article {
   id: number;
   title: string;
   slug: string;
+  cover?: {
+    url: string;
+    formats?: {
+      thumbnail?: { url: string };
+      small?: { url: string };
+    };
+  };
 }
 
 function selectedFilter(current: string, selected: string) {
@@ -71,18 +78,32 @@ export default function ArticleSelect({
           <ul className="space-y-3" role="list">
             {articles.slice(0, 5).map((article: Article) => {
               const isCurrentArticle = params.slug === article.slug;
+              const coverUrl = article.cover?.formats?.thumbnail?.url || article.cover?.formats?.small?.url || article.cover?.url;
               return (
                 <li key={article.id}>
                   <Link
                     href={`/${params.category}/${article.slug}`}
-                    className={`block text-sm transition-colors ${
+                    className={`flex items-start gap-3 group ${
                       isCurrentArticle
-                        ? "text-primary-600 dark:text-primary-400 font-medium"
-                        : "text-slate-600 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400"
+                        ? ""
+                        : ""
                     }`}
                     aria-current={isCurrentArticle ? "page" : undefined}
                   >
-                    <span className="line-clamp-2">{article.title}</span>
+                    {coverUrl && (
+                      <img
+                        src={coverUrl}
+                        alt=""
+                        className="w-16 h-12 rounded-lg object-cover flex-shrink-0"
+                      />
+                    )}
+                    <span className={`text-sm transition-colors line-clamp-2 ${
+                      isCurrentArticle
+                        ? "text-primary-600 dark:text-primary-400 font-medium"
+                        : "text-slate-600 dark:text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400"
+                    }`}>
+                      {article.title}
+                    </span>
                   </Link>
                 </li>
               );

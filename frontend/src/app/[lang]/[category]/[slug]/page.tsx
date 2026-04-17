@@ -2,26 +2,33 @@ import { fetchAPI } from '@/app/[lang]/utils/fetch-api';
 import Post from '@/app/[lang]/components/Post';
 import type { Metadata } from 'next';
 
+const BLOG_SLUG = process.env.NEXT_PUBLIC_BLOG_SLUG || '';
+
 async function getPostBySlug(slug: string) {
     const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
     const path = `/articles`;
-    const urlParamsObject = {
-        filters: { slug },
+    const urlParamsObject: any = {
+        slug: slug,
         populate: ['cover', 'authorsBio.avatar', 'category', 'blocks'],
     };
+    if (BLOG_SLUG) {
+        urlParamsObject.filters = { blog: { slug: BLOG_SLUG } };
+    }
     const options = { headers: { Authorization: `Bearer ${token}` } };
     const response = await fetchAPI(path, urlParamsObject, options);
-    console.log(response)
     return response;
 }
 
 async function getMetaData(slug: string) {
     const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
     const path = `/articles`;
-    const urlParamsObject = {
-        filters: { slug },
+    const urlParamsObject: any = {
+        slug: slug,
         populate: ['seo'],
     };
+    if (BLOG_SLUG) {
+        urlParamsObject.filters = { blog: { slug: BLOG_SLUG } };
+    }
     const options = { headers: { Authorization: `Bearer ${token}` } };
     const response = await fetchAPI(path, urlParamsObject, options);
     return response.data;
@@ -49,14 +56,12 @@ export default async function PostRoute({ params }: { params: { slug: string } }
 export async function generateStaticParams() {
     const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
     const path = `/articles`;
+    const urlParamsObject: any = { populate: ['category'] };
+    if (BLOG_SLUG) {
+        urlParamsObject.filters = { blog: { slug: BLOG_SLUG } };
+    }
     const options = { headers: { Authorization: `Bearer ${token}` } };
-    const articleResponse = await fetchAPI(
-        path,
-        {
-            populate: ['category'],
-        },
-        options
-    );
+    const articleResponse = await fetchAPI(path, urlParamsObject, options);
 
     return (articleResponse.data || []).map(
         (article: {

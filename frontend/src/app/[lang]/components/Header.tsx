@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { HiMenu, HiX, HiSearch, HiSun, HiMoon } from "react-icons/hi";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -12,6 +12,20 @@ interface NavLink {
   url: string;
   newTab: boolean;
   text: string;
+}
+
+interface SearchResult {
+  id: number;
+  documentId?: string;
+  title: string;
+  slug: string;
+  cover?: {
+    url?: string;
+    formats?: {
+      thumbnail?: { url?: string };
+      small?: { url?: string };
+    };
+  };
 }
 
 interface HeaderProps {
@@ -25,6 +39,11 @@ export default function Header({ links, logoUrl, logoText }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -64,6 +83,57 @@ export default function Header({ links, logoUrl, logoText }: HeaderProps) {
     };
   }, [isMobileMenuOpen, isSearchOpen]);
 
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/strapi/articles/search?q=${encodeURIComponent(searchQuery)}`
+        );
+        const data = await res.json();
+        if (data.data) {
+          setSearchResults(data.data);
+        } else {
+          setSearchResults([]);
+        }
+      } catch (error) {
+        console.error("Search error:", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setIsSearchOpen(false);
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleResultClick = () => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
 
@@ -84,18 +154,17 @@ export default function Header({ links, logoUrl, logoText }: HeaderProps) {
               aria-label="Go to homepage"
             >
               {logoUrl && (
-                <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
                   <Image
-                    src="/logo.svg"
+                    src={logoUrl}
                     alt=""
-                    fill
+                    width={120}
+                    height={20}
                     className="object-cover"
                   />
-                </div>
               )}
-              <span className="text-xl lg:text-2xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
+              {/* <span className="text-xl lg:text-2xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
                 {logoText}
-              </span>
+              </span> */}
             </Link>
 
             <nav className="hidden lg:flex items-center gap-1" aria-label="Main navigation">
@@ -198,7 +267,7 @@ export default function Header({ links, logoUrl, logoText }: HeaderProps) {
               className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm"
               onClick={toggleSearch}
             />
-            <div className="max-w-2xl mx-auto pt-32 px-4 fixed inset-x-0 z-50">
+<div className="max-w-2xl mx-auto pt-32 px-4 fixed inset-x-0 z-50">
               <motion.div
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -206,22 +275,62 @@ export default function Header({ links, logoUrl, logoText }: HeaderProps) {
                 transition={{ duration: 0.2 }}
                 className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800"
               >
-                <div className="flex items-center gap-4 p-4">
-                  <HiSearch className="w-5 h-5 text-slate-400" aria-hidden="true" />
-                  <input
-                    type="search"
-                    placeholder="Search articles..."
-                    className="flex-1 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-lg focus:outline-none"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    onClick={toggleSearch}
-                    className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    <HiX className="w-5 h-5" aria-hidden="true" />
-                  </button>
-                </div>
+                <form onSubmit={handleSearchSubmit}>
+                  <div className="flex items-center gap-4 p-4">
+                    <HiSearch className="w-5 h-5 text-slate-400" aria-hidden="true" />
+                    <input
+                      type="search"
+                      placeholder="Search articles..."
+                      className="flex-1 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-lg focus:outline-none"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleSearch}
+                      className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      <HiX className="w-5 h-5" />
+                    </button>
+                  </div>
+                </form>
+                {searchQuery.length >= 2 && (
+                  <div className="border-t border-slate-200 dark:border-slate-800 max-h-80 overflow-y-auto">
+                    {isSearching ? (
+                      <div className="p-4 text-slate-500 dark:text-slate-400 text-center">
+                        Searching...
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <ul className="py-2">
+                        {searchResults.map((result) => (
+                          <li key={result.id}>
+                            <Link
+                              href={`/article/${result.slug}`}
+                              onClick={handleResultClick}
+                              className="flex items-center gap-3 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              {result.cover?.url && (
+                                <img
+                                  src={result.cover.formats?.thumbnail?.url || result.cover.formats?.small?.url || result.cover.url}
+                                  alt=""
+                                  className="w-12 h-12 rounded-lg object-cover"
+                                />
+                              )}
+                              <span className="text-slate-900 dark:text-white font-medium line-clamp-2">
+                                {result.title}
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="p-4 text-slate-500 dark:text-slate-400 text-center">
+                        No results found
+                      </div>
+                    )}
+                  </div>
+                )}
               </motion.div>
             </div>
           </>

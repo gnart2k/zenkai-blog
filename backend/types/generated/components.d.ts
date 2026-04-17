@@ -1,5 +1,23 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface BlogTheme extends Struct.ComponentSchema {
+  collectionName: 'components_blog_themes';
+  info: {
+    description: 'Blog theme configuration';
+    displayName: 'Theme';
+  };
+  attributes: {
+    accentColor: Schema.Attribute.String;
+    fontFamily: Schema.Attribute.Enumeration<
+      ['Inter', 'Playfair Display', 'Merriweather', 'Roboto', 'Open Sans']
+    >;
+    layout: Schema.Attribute.Enumeration<
+      ['classic', 'modern', 'minimal', 'cards']
+    >;
+    primaryColor: Schema.Attribute.String;
+  };
+}
+
 export interface ElementsFeature extends Struct.ComponentSchema {
   collectionName: 'components_elements_features';
   info: {
@@ -479,6 +497,7 @@ export interface SharedVideoEmbed extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'blog.theme': BlogTheme;
       'elements.feature': ElementsFeature;
       'elements.feature-column': ElementsFeatureColumn;
       'elements.feature-row': ElementsFeatureRow;

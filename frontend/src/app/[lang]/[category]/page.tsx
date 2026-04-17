@@ -2,11 +2,13 @@ import PageHeader from '@/app/[lang]/components/PageHeader';
 import { fetchAPI } from '@/app/[lang]/utils/fetch-api';
 import PostList from '@/app/[lang]/components/PostList';
 
+const BLOG_SLUG = process.env.NEXT_PUBLIC_BLOG_SLUG || '';
+
 async function fetchPostsByCategory(filter: string) {
     try {
         const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
         const path = `/articles`;
-        const urlParamsObject = {
+        const urlParamsObject: any = {
             sort: { createdAt: 'desc' },
             filters: {
                 category: {
@@ -15,9 +17,11 @@ async function fetchPostsByCategory(filter: string) {
             },
             populate: ['cover', 'category', 'authorsBio.avatar'],
         };
+        if (BLOG_SLUG) {
+            urlParamsObject.filters.blog = { slug: BLOG_SLUG };
+        }
         const options = { headers: { Authorization: `Bearer ${token}` } };
         const responseData = await fetchAPI(path, urlParamsObject, options);
-        responseData.data.length > 0 && console.log('Fetched posts by category:', responseData.data[1].cover);
         return responseData;
     } catch (error) {
         console.error(error);

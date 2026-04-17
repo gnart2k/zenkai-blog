@@ -40,10 +40,13 @@ interface Category {
   slug: string;
 }
 
+const BLOG_SLUG = process.env.NEXT_PUBLIC_BLOG_SLUG || "";
+
 const fetcher = async () => {
   const [articlesResponse, categoriesResponse] = await Promise.all([
     fetchAPI("/articles", {
       sort: { createdAt: "desc" },
+      filters: BLOG_SLUG ? { blog: { slug: BLOG_SLUG } } : undefined,
       populate: {
         cover: { fields: ["url"] },
         category: { populate: "*" },
@@ -51,7 +54,10 @@ const fetcher = async () => {
       },
       pagination: { start: 0, limit: 20 },
     }),
-    fetchAPI("/categories", { populate: "*" }),
+    fetchAPI("/categories", { 
+      filters: BLOG_SLUG ? { blog: { slug: BLOG_SLUG } } : undefined,
+      populate: "*" 
+    }),
   ]);
   return {
     articles: articlesResponse.data || [],
@@ -60,7 +66,7 @@ const fetcher = async () => {
 };
 
 export default function Home() {
-  const { data, isLoading } = useSWR("home-page-data", fetcher);
+  const { data, isLoading } = useSWR(BLOG_SLUG ? `home-page-data-${BLOG_SLUG}` : "home-page-data", fetcher);
   const [activeCategory, setActiveCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -89,6 +95,7 @@ export default function Home() {
   }, [articles, activeCategory, searchQuery]);
 
   const featuredArticle = filteredArticles[0];
+  console.log('Featured article:', featuredArticle);
   const gridArticles = filteredArticles.slice(1);
   const sidebarArticles = articles.slice(0, 5);
 

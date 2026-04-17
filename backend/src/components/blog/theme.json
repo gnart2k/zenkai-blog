@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_blog_themes",
+  "info": {
+    "displayName": "Theme",
+    "description": "Blog theme configuration"
+  },
+  "options": {},
+  "attributes": {
+    "primaryColor": {
+      "type": "string",
+      "regex": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+    },
+    "accentColor": {
+      "type": "string",
+      "regex": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+    },
+    "fontFamily": {
+      "type": "enumeration",
+      "enum": ["Inter", "Playfair Display", "Merriweather", "Roboto", "Open Sans"]
+    },
+    "layout": {
+      "type": "enumeration",
+      "enum": ["classic", "modern", "minimal", "cards"]
+    }
+  }
+}

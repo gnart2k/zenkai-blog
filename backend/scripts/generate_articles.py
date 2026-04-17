@@ -17,6 +17,7 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:4b")
 UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY", "")
 TECH_CATEGORIES = ["AI", "Web Development", "Cloud", "DevOps", "Mobile", "Security"]
+BLOG_SLUG = os.getenv("BLOG_SLUG", "wisdomCalled")
 
 
 def setup_ollama():
@@ -164,7 +165,23 @@ def get_author_id(headers):
     return resp.json().get("data", {}).get("id", 1)
 
 
-def get_category_id(headers, name, slug, description):
+def get_blog_id(headers):
+    """Get blog ID by slug"""
+    try:
+        resp = requests.get(
+            f"{STRAPI_URL}/api/blogs?filters%5Bslug%5D%5B%24eq%5D={BLOG_SLUG}",
+            headers=headers,
+            timeout=10
+        )
+        data = resp.json()
+        if data.get("data") and len(data["data"]) > 0:
+            return data["data"][0]["id"]
+    except Exception as e:
+        print(f"Warning: Could not fetch blog: {e}")
+    return 1
+
+
+def get_category_id(headers, name, slug, description, blog_id=None):
     """Get existing category or create one"""
     try:
         resp = requests.get(
@@ -178,10 +195,13 @@ def get_category_id(headers, name, slug, description):
     except:
         pass
 
+    category_data = {"name": name, "slug": slug, "description": description}
+    if blog_id:
+        category_data["blog"] = blog_id
     resp = requests.post(
         f"{STRAPI_URL}/api/categories",
         headers=headers,
-        json={"data": {"name": name, "slug": slug, "description": description}},
+        json={"data": category_data},
         timeout=10
     )
     return resp.json().get("data", {}).get("id", 1)
@@ -214,7 +234,7 @@ def upload_image_to_strapi(headers, image_url):
     return None
 
 
-def create_article(headers, author_id, category_id, topic, content, image_id=None):
+def create_article(headers, author_id, category_id, topic, content, image_id=None, blog_id=None):
     """Create article in Strapi"""
     data = {
         "data": {
@@ -235,6 +255,9 @@ def create_article(headers, author_id, category_id, topic, content, image_id=Non
 
     if image_id:
         data["data"]["cover"] = image_id
+
+    if blog_id:
+        data["data"]["blog"] = blog_id
 
     try:
         resp = requests.post(
@@ -269,7 +292,11 @@ def main():
 
     print(f"Using Ollama model: {OLLAMA_MODEL}")
     print(f"Targeting Strapi at: {STRAPI_URL}")
+    print(f"Using blog slug: {BLOG_SLUG}")
     print()
+
+    blog_id = get_blog_id(headers)
+    print(f"Blog ID: {blog_id}")
 
     for category in TECH_CATEGORIES:
         print(f"\n--- Processing category: {category} ---")
@@ -292,7 +319,8 @@ def main():
                 headers,
                 category,
                 category.lower().replace(" ", "-"),
-                f"Latest {category} news and tutorials"
+                f"Latest {category} news and tutorials",
+                blog_id
             )
 
             author_id = get_author_id(headers)
@@ -303,7 +331,7 @@ def main():
                 image_id = upload_image_to_strapi(headers, image["url"])
 
             success, result = create_article(
-                headers, author_id, category_id, topic, content, image_id
+                headers, author_id, category_id, topic, content, image_id, blog_id
             )
 
             if success:

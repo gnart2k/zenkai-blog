@@ -1,16 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { getStrapiMedia, getStrapiURL } from "./utils/api-helpers";
 import { fetchAPI } from "./utils/fetch-api";
 import { i18n } from "../../../i18n-config";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 
-const APP_NAME = "zenkai blog";
+const BLOG_SLUG = process.env.NEXT_PUBLIC_BLOG_SLUG || "";
 
-const FALLBACK_SEO = {
-  title: `${APP_NAME}`,
-  description: "Personal Blog Of TrangDP",
+async function getBlog() {
+  if (!BLOG_SLUG) return null;
+  
+  const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
+  const path = `/blogs`;
+  const urlParamsObject = {
+    filters: { slug: BLOG_SLUG },
+    populate: ["logo", "theme", "seo"],
+  };
+  const options = { headers: { Authorization: `Bearer ${token}` } };
+  const response = await fetchAPI(path, urlParamsObject, options);
+  return response.data?.[0] || null;
 }
 
 async function getGlobal(): Promise<any> {
@@ -43,7 +51,8 @@ async function getCategories(): Promise<any[]> {
   try {
     const token = process.env.NEXT_PUBLIC_STRAPI_API_TOKEN;
     const options = { headers: { Authorization: `Bearer ${token}` } };
-    const response = await fetchAPI("/categories", { populate: "*" }, options);
+    const filters = BLOG_SLUG ? { blog: { slug: BLOG_SLUG } } : {};
+    const response = await fetchAPI("/categories", { filters, populate: "*" }, options);
     return response.data || [];
   } catch (error) {
     console.error(error);
@@ -52,17 +61,26 @@ async function getCategories(): Promise<any[]> {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const meta = await getGlobal();
+  const blog = await getBlog();
 
-  if (!meta.data) return FALLBACK_SEO;
+  if (blog?.attributes?.seo) {
+    const seo = blog.attributes.seo;
+    return {
+      title: seo.metaTitle || blog.attributes.name,
+      description: seo.metaDescription || blog.attributes.description,
+    };
+  }
 
-  const { metadata, favicon } = meta.data.attributes;
-  const iconUrl = favicon?.data?.attributes?.url;
+  if (blog) {
+    return {
+      title: blog?.name || "Blog",
+      description: blog?.description || "",
+    };
+  }
 
   return {
-    title: metadata?.metaTitle || FALLBACK_SEO.title,
-    description: metadata?.metaDescription || FALLBACK_SEO.description,
-    icons: iconUrl ? { icon: [new URL(iconUrl, getStrapiURL())] } : {},
+    title: "Blog",
+    description: "Personal Blog",
   };
 }
 
@@ -73,64 +91,14 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { lang: string };
 }) {
-  const global = await getGlobal();
-  const categories = await getCategories();
+  const [global, categories, blog] = await Promise.all([
+    getGlobal(),
+    getCategories(),
+    getBlog(),
+  ]);
 
-  const defaultNavbar = {
-    links: [],
-    button: null,
-    navbarLogo: { logoImg: null, logoText: APP_NAME },
-  };
-
-  const defaultFooter = {
-    footerLogo: { logoImg: null, logoText: APP_NAME },
-    menuLinks: [],
-    legalLinks: [],
-    socialLinks: [],
-    categories: { data: [] },
-  };
-
-  if (!global.data) {
-    return (
-      <html lang={params.lang} className="scroll-smooth">
-        <body className="min-h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 antialiased">
-          <a
-            href="#main-content"
-            className="skip-link"
-          >
-            Skip to main content
-          </a>
-          <Header
-            links={categories.map((cat: any) => ({
-              id: cat.id,
-              url: `/${cat.slug}`,
-              newTab: false,
-              text: cat.name,
-            }))}
-            logoUrl={null}
-            logoText={APP_NAME}
-          />
-          <main id="main-content" className="flex-grow pt-16 lg:pt-20">
-            {children}
-          </main>
-          <footer className="py-6 text-center text-sm text-slate-500 dark:text-slate-400">
-            <p>©{new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
-          </footer>
-        </body>
-      </html>
-    );
-  }
-
-  const { navbar, footer } = global.data.attributes;
-
-  console.log("Fetched global data:", global)
-  const navbarLogoUrl = navbar?.navbarLogo?.logoImg?.data?.attributes?.url
-    ? getStrapiMedia(navbar.navbarLogo.logoImg.data.attributes.url)
-    : null;
-
-  const footerLogoUrl = footer?.footerLogo?.logoImg?.data?.attributes?.url
-    ? getStrapiMedia(footer.footerLogo.logoImg.data.attributes.url)
-    : null;
+  const appName = blog?.name || "Blog";
+  const blogLogoUrl = blog?.logo?.url
 
   const categoryLinks = categories.map((cat: any) => ({
     id: cat.id,
@@ -138,6 +106,8 @@ export default async function RootLayout({
     newTab: false,
     text: cat.name,
   }));
+
+  const navbarLogoUrl = blogLogoUrl
 
   return (
     <html lang={params.lang} className="scroll-smooth">
@@ -152,7 +122,7 @@ export default async function RootLayout({
         <Header
           links={categoryLinks}
           logoUrl={navbarLogoUrl}
-          logoText={navbar?.navbarLogo?.logoText || APP_NAME}
+          logoText={global.data?.attributes?.navbar?.navbarLogo?.logoText || appName}
         />
 
         <main id="main-content" className="flex-grow pt-16 lg:pt-20">
@@ -160,12 +130,12 @@ export default async function RootLayout({
         </main>
 
         <Footer
-          logoUrl={footerLogoUrl}
-          logoText={footer?.footerLogo?.logoText || APP_NAME}
-          menuLinks={footer?.menuLinks || []}
-          categoryLinks={footer?.categories?.data || []}
-          legalLinks={footer?.legalLinks || []}
-          socialLinks={footer?.socialLinks || []}
+          logoUrl={navbarLogoUrl}
+          logoText={""}
+          menuLinks={global.data?.attributes?.footer?.menuLinks || []}
+          categoryLinks={global.data?.attributes?.footer?.categories?.data || []}
+          legalLinks={global.data?.attributes?.footer?.legalLinks || []}
+          socialLinks={global.data?.attributes?.footer?.socialLinks || []}
         />
       </body>
     </html>
