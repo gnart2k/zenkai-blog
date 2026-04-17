@@ -95,7 +95,6 @@ export default function Home() {
   }, [articles, activeCategory, searchQuery]);
 
   const featuredArticle = filteredArticles[0];
-  console.log('Featured article:', featuredArticle);
   const gridArticles = filteredArticles.slice(1);
   const sidebarArticles = articles.slice(0, 5);
 

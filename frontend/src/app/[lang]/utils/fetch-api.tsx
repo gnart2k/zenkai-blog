@@ -3,9 +3,9 @@ import qs from "qs";
 
 const getAPIUrl = () => {
   if (typeof window === 'undefined') {
-    return process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+    return process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://127.0.0.1:1337';
   }
-  return process.env.NEXT_PUBLIC_STRAPI_PUBLIC_API_URL || 'http://localhost:1337';
+  return process.env.NEXT_PUBLIC_STRAPI_PUBLIC_API_URL || 'http://127.0.0.1:1337';
 };
 
 const getProxyUrl = (path: string, urlParamsObject: any) => {

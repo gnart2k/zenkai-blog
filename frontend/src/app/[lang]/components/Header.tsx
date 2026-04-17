@@ -31,10 +31,11 @@ interface SearchResult {
 interface HeaderProps {
   links: Array<NavLink>;
   logoUrl: string | null;
+  logoDarkUrl: string | null;
   logoText: string | null;
 }
 
-export default function Header({ links, logoUrl, logoText }: HeaderProps) {
+export default function Header({ links, logoUrl, logoDarkUrl, logoText }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -153,15 +154,15 @@ export default function Header({ links, logoUrl, logoText }: HeaderProps) {
               className="flex items-center gap-3 group"
               aria-label="Go to homepage"
             >
-              {logoUrl && (
+{logoUrl && (
                   <Image
-                    src={logoUrl}
+                    src={isDark && logoDarkUrl ? logoDarkUrl : logoUrl}
                     alt=""
                     width={120}
                     height={20}
                     className="object-cover"
                   />
-              )}
+                )}
               {/* <span className="text-xl lg:text-2xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
                 {logoText}
               </span> */}

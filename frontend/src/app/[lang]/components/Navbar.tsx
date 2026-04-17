@@ -36,10 +36,12 @@ function NavLink({ url, text }: NavLink) {
 export default function Navbar({
   links,
   logoUrl,
+  logoDarkUrl,
   logoText,
 }: {
   links: Array<NavLink>;
   logoUrl: string | null;
+  logoDarkUrl: string | null;
   logoText: string | null;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -89,7 +91,7 @@ export default function Navbar({
             className="flex items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-lg"
             aria-label="Go to homepage"
           >
-            <Logo src={logoUrl}>
+            <Logo src={logoUrl} srcDark={logoDarkUrl}>
               <span className="text-2xl font-bold text-slate-900 dark:text-white">
                 {logoText}
               </span>

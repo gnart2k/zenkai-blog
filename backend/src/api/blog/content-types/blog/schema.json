@@ -30,6 +30,11 @@
       "multiple": false,
       "allowedTypes": ["images"]
     },
+    "logoDark": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
     "description": {
       "type": "text"
     },

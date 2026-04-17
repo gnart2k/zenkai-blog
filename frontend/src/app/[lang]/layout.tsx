@@ -14,7 +14,7 @@ async function getBlog() {
   const path = `/blogs`;
   const urlParamsObject = {
     filters: { slug: BLOG_SLUG },
-    populate: ["logo", "theme", "seo"],
+    populate: ["logo", "logoDark", "theme", "seo", "seo.favicon"],
   };
   const options = { headers: { Authorization: `Bearer ${token}` } };
   const response = await fetchAPI(path, urlParamsObject, options);
@@ -62,12 +62,16 @@ async function getCategories(): Promise<any[]> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const blog = await getBlog();
+  const global = await getGlobal();
 
-  if (blog?.attributes?.seo) {
-    const seo = blog.attributes.seo;
+  const favicon = blog?.seo?.favicon?.url || global?.data?.attributes?.favicon?.url;
+
+  if (blog?.seo) {
+    const seo = blog.seo;
     return {
-      title: seo.metaTitle || blog.attributes.name,
-      description: seo.metaDescription || blog.attributes.description,
+      title: seo.metaTitle || blog.name,
+      description: seo.metaDescription || blog.description,
+      icons: favicon ? { icon: favicon, shortcut: favicon, apple: favicon } : undefined,
     };
   }
 
@@ -75,11 +79,12 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       title: blog?.name || "Blog",
       description: blog?.description || "",
+      icons: favicon ? { icon: favicon, shortcut: favicon, apple: favicon } : undefined,
     };
   }
 
   return {
-    title: "Blog",
+    title: "wisdom",
     description: "Personal Blog",
   };
 }
@@ -99,6 +104,7 @@ export default async function RootLayout({
 
   const appName = blog?.name || "Blog";
   const blogLogoUrl = blog?.logo?.url
+  const blogLogoDarkUrl = blog?.logoDark?.url
 
   const categoryLinks = categories.map((cat: any) => ({
     id: cat.id,
@@ -108,6 +114,7 @@ export default async function RootLayout({
   }));
 
   const navbarLogoUrl = blogLogoUrl
+  const navbarLogoDarkUrl = blogLogoDarkUrl
 
   return (
     <html lang={params.lang} className="scroll-smooth">
@@ -122,6 +129,7 @@ export default async function RootLayout({
         <Header
           links={categoryLinks}
           logoUrl={navbarLogoUrl}
+          logoDarkUrl={navbarLogoDarkUrl}
           logoText={global.data?.attributes?.navbar?.navbarLogo?.logoText || appName}
         />
 
@@ -131,6 +139,7 @@ export default async function RootLayout({
 
         <Footer
           logoUrl={navbarLogoUrl}
+          logoDarkUrl={navbarLogoDarkUrl}
           logoText={""}
           menuLinks={global.data?.attributes?.footer?.menuLinks || []}
           categoryLinks={global.data?.attributes?.footer?.categories?.data || []}

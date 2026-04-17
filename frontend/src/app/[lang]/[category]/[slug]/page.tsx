@@ -63,12 +63,14 @@ export async function generateStaticParams() {
     const options = { headers: { Authorization: `Bearer ${token}` } };
     const articleResponse = await fetchAPI(path, urlParamsObject, options);
 
-    return (articleResponse.data || []).map(
-        (article: {
-            slug: string;
-            category?: {
+    return (articleResponse.data || [])
+        .filter((article: { category?: { slug: string } }) => article.category?.slug)
+        .map(
+            (article: {
                 slug: string;
-            };
-        }) => ({ slug: article.slug, category: article.category?.slug || '' })
-    );
+                category: {
+                    slug: string;
+                };
+            }) => ({ slug: article.slug, category: article.category.slug })
+        );
 }

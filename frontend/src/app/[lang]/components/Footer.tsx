@@ -38,6 +38,7 @@ function SocialIcon({ social }: { social: string | undefined }) {
 
 export default function Footer({
   logoUrl,
+  logoDarkUrl,
   logoText,
   menuLinks,
   categoryLinks,
@@ -45,6 +46,7 @@ export default function Footer({
   socialLinks,
 }: {
   logoUrl: string | null;
+  logoDarkUrl?: string | null;
   logoText: string | null;
   menuLinks: Array<{ id: string | number; url: string; text: string }>;
   categoryLinks: Array<CategoryLink>;
@@ -63,7 +65,7 @@ export default function Footer({
               className="inline-block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-lg"
               aria-label="Go to homepage"
             >
-              <Logo src={logoUrl}>
+              <Logo src={logoUrl} srcDark={logoDarkUrl}>
                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
                   {logoText}
                 </span>
