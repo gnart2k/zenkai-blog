@@ -86,7 +86,7 @@ export default function Header({ links, logoUrl, logoText }: HeaderProps) {
               {logoUrl && (
                 <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300">
                   <Image
-                    src={logoUrl}
+                    src="/logo.svg"
                     alt=""
                     fill
                     className="object-cover"

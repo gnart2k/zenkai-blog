@@ -9,8 +9,8 @@ import Header from "./components/Header";
 const APP_NAME = "zenkai blog";
 
 const FALLBACK_SEO = {
-  title: `${APP_NAME} - A Strapi Blog`,
-  description: "A blog powered by Strapi 5 and Next.js",
+  title: `${APP_NAME}`,
+  description: "Personal Blog Of TrangDP",
 }
 
 async function getGlobal(): Promise<any> {
@@ -123,6 +123,7 @@ export default async function RootLayout({
 
   const { navbar, footer } = global.data.attributes;
 
+  console.log("Fetched global data:", global)
   const navbarLogoUrl = navbar?.navbarLogo?.logoImg?.data?.attributes?.url
     ? getStrapiMedia(navbar.navbarLogo.logoImg.data.attributes.url)
     : null;

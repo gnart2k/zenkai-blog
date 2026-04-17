@@ -2,14 +2,11 @@
   "name": "zenkai-blog",
   "private": true,
   "scripts": {
-    "db:start": "docker compose -f docker-compose.yml up -d",
-    "db:stop": "docker compose -f docker-compose.yml down",
-    "db:remove": "docker compose -f docker-compose.yml down -v",
-    "dev": "npm run db:start && concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd backend && npm run build && cd ../frontend && npm run build",
-    "start": "npm run db:start && concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "cd backend && npm run start",
     "start:frontend": "cd frontend && npm run start"
   },
