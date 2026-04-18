@@ -160,7 +160,7 @@ export default function Header({ links, logoUrl, logoDarkUrl, logoText }: Header
                     alt=""
                     width={120}
                     height={20}
-                    className="object-cover"
+                    className="h-7 w-auto max-w-[min(100%,9rem)] sm:h-8 sm:max-w-[10rem] object-contain object-left"
                   />
                 )}
               {/* <span className="text-xl lg:text-2xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-200">
@@ -268,13 +268,13 @@ export default function Header({ links, logoUrl, logoDarkUrl, logoText }: Header
               className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm"
               onClick={toggleSearch}
             />
-<div className="max-w-2xl mx-auto pt-32 px-4 fixed inset-x-0 z-50">
+<div className="max-w-2xl mx-auto pt-[max(5rem,env(safe-area-inset-top,0px))] sm:pt-28 md:pt-32 px-3 sm:px-4 fixed inset-x-0 z-50 pointer-events-none">
               <motion.div
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -20, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800"
+                className="pointer-events-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800"
               >
                 <form onSubmit={handleSearchSubmit}>
                   <div className="flex items-center gap-4 p-4">
@@ -282,7 +282,7 @@ export default function Header({ links, logoUrl, logoDarkUrl, logoText }: Header
                     <input
                       type="search"
                       placeholder="Search articles..."
-                      className="flex-1 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-lg focus:outline-none"
+                      className="flex-1 min-w-0 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 text-base sm:text-lg focus:outline-none"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
@@ -356,7 +356,7 @@ export default function Header({ links, logoUrl, logoDarkUrl, logoText }: Header
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-              className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white dark:bg-slate-950 shadow-2xl"
+              className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white dark:bg-slate-950 shadow-2xl pb-[env(safe-area-inset-bottom,0px)]"
               aria-label="Mobile navigation"
             >
               <div className="flex flex-col h-full">

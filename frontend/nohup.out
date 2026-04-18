@@ -1,0 +1,24 @@
+
+> frontend@0.1.0 start
+> next start -p 4400
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:4400
+
+ ✓ Starting...
+ ⚠ Invalid next.config.js options detected: 
+ ⚠     Unrecognized key(s) in object: 'appDir' at "experimental"
+ ⚠     Unrecognized key(s) in object: 'port'
+ ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+ ✓ Ready in 358ms
+RangeError: Incorrect locale information provided
+    at Intl.getCanonicalLocales (<anonymous>)
+    at /home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:13:58493
+    at Object.eJ [as handler] (/home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:13:58578)
+    at /home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:13:24846
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_hooks:91:14)
+    at Object.wrap (/home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:13:22130)
+    at /home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:13:24659
+    at /home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:13:19434
+    at a.with (/home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:19:17834)
+    at d.with (/home/trg/zenkai-blog/frontend/.next/server/src/middleware.js:19:12034)

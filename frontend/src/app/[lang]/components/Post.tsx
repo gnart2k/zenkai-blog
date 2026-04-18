@@ -72,7 +72,7 @@ export default function Post({ data }: { data: Article }) {
     const authorImgUrl = authorsBio?.avatar?.url ? getStrapiMedia(authorsBio.avatar.url) : null;
 
     return (
-        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <article className="max-w-4xl mx-auto min-w-0 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             <header className="mb-8">
                 {category && (
                     <span className="inline-block px-3 py-1 text-sm font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 rounded-full mb-4">
@@ -80,7 +80,7 @@ export default function Post({ data }: { data: Article }) {
                     </span>
                 )}
 
-                <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-6">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white leading-tight mb-6 break-words">
                     {title}
                 </h1>
 
@@ -111,8 +111,8 @@ export default function Post({ data }: { data: Article }) {
                 </div>
             </header>
 
-            <figure className="mb-10 -mx-4 sm:mx-0">
-                <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
+            <figure className="mb-8 sm:mb-10 -mx-4 sm:mx-0">
+                <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800">
                     <FallbackImage
                         src={imageUrl || ''}
                         alt={`Cover image for ${title}`}
@@ -125,8 +125,8 @@ export default function Post({ data }: { data: Article }) {
                 </div>
             </figure>
 
-            <div className="rich-text text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
-                <p className="text-xl text-slate-600 dark:text-slate-400 mb-8 font-medium">
+            <div className="rich-text text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
+                <p className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 mb-6 sm:mb-8 font-medium">
                     {description}
                 </p>
 

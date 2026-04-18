@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { fetchAPI } from "./utils/fetch-api";
 import { i18n } from "../../../i18n-config";
@@ -89,6 +89,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default async function RootLayout({
   children,
   params,
@@ -133,7 +138,7 @@ export default async function RootLayout({
           logoText={global.data?.attributes?.navbar?.navbarLogo?.logoText || appName}
         />
 
-        <main id="main-content" className="flex-grow pt-16 lg:pt-20">
+        <main id="main-content" className="flex-grow min-w-0 pt-16 lg:pt-20">
           {children}
         </main>
 

@@ -45,7 +45,7 @@ export default function ArticleSelect({
 
   return (
     <aside 
-      className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 h-fit sticky top-24"
+      className="h-fit rounded-2xl bg-slate-50 p-4 sm:p-6 dark:bg-slate-900 lg:sticky lg:top-28"
       aria-label="Article navigation"
     >
       <div>

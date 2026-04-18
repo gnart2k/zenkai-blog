@@ -18,13 +18,21 @@ export default function Slideshow({ data }: { data: SlidShowProps }) {
   const images = data.files || [];
   
   return (
-    <div className="slide-container">
+    <div className="slide-container w-full overflow-hidden rounded-lg">
       <Fade>
         {images.map((fadeImage: Image, index) => {
           const imageUrl = fadeImage.url ? getStrapiMedia(fadeImage.url) : null;
           return (
-            <div key={index}>
-              {imageUrl && <Image className="w-full h-96 object-cover rounded-lg" height={400} width={600} alt={fadeImage.alternativeText || "alt text"} src={imageUrl} />}
+            <div key={index} className="relative aspect-[4/3] w-full sm:aspect-video md:aspect-[21/9]">
+              {imageUrl && (
+                <Image
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 56rem"
+                  alt={fadeImage.alternativeText || "Slide image"}
+                  src={imageUrl}
+                />
+              )}
             </div>
           );
         })}

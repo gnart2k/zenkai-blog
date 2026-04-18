@@ -15,14 +15,16 @@ export default function Media({ data }: { data: MediaProps }) {
   if (!imgUrl) return null;
   
   return (
-    <div className="flex items-center justify-center mt-8 lg:mt-0 h-72 sm:h-80 lg:h-96 xl:h-112 2xl:h-128">
-      <Image
-        src={imgUrl}
-        alt={data.file?.alternativeText || "none provided"}
-        className="object-cover w-full h-full rounded-lg overflow-hidden"
-        width={400}
-        height={400}
-      />
+    <div className="relative mt-8 w-full max-w-4xl overflow-hidden rounded-lg lg:mt-0">
+      <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] md:aspect-[16/9]">
+        <Image
+          src={imgUrl}
+          alt={data.file?.alternativeText || "Article image"}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 56rem"
+          className="object-cover"
+        />
+      </div>
     </div>
   );
 }

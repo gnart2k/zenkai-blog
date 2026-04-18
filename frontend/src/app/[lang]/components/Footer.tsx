@@ -57,8 +57,8 @@ export default function Footer({
 
   return (
     <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="grid grid-cols-1 gap-8 min-[480px]:grid-cols-2 lg:grid-cols-4 lg:gap-10 xl:gap-12">
           <div className="lg:col-span-1">
             <Link
               href="/"
@@ -139,7 +139,7 @@ export default function Footer({
               ©{currentYear} {logoText}. All rights reserved.
             </p>
             <nav aria-label="Legal">
-              <ul className="flex items-center gap-6" role="list">
+              <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 sm:justify-end" role="list">
                 {legalLinks.map((link) => (
                   <li key={link.id}>
                     <Link
